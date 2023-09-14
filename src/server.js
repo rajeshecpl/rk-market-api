@@ -37,7 +37,6 @@ app.post("/login", async (req, res) => {
 app.post("/register", async (req, res) => {
   const { name, email, password, type, contactNumber } = req.body;
 
-  // Hash the password before storing it
   const hashedPassword = await bcrypt.hash(password, 10); // You can adjust the number of rounds for hashing
 
   const existingUser = await db("registration").where({ email }).first();
@@ -55,6 +54,66 @@ app.post("/register", async (req, res) => {
     return res.status(201).json({ message: "Registration successful" });
   }
 });
+
+
+app.post("/rent-form", async (req, res) => {
+  const {
+    propertyName,
+    propertyType,
+    floor,
+    totalFloor,
+    propertyAge,
+    flatType,
+    facing,
+    propertyArea,
+    propertyAvailableFor,
+    expectedRent,
+    expectedDeposit,
+    rentNegotiable,
+    monthlyMaintenance,
+    maintenanceAmount,
+    availableFrom,
+    preferredTenants,
+  } = req.body;
+
+  try {
+    await db("rent_form").insert({
+      propertyName,
+      propertyType,
+      floor,
+      totalFloor,
+      propertyAge,
+      flatType,
+      facing,
+      propertyArea,
+      propertyAvailableFor,
+      expectedRent,
+      expectedDeposit,
+      rentNegotiable,
+      monthlyMaintenance,
+      maintenanceAmount,
+      availableFrom,
+      preferredTenants,
+    });
+
+    return res.status(201).json({ message: "Rent form registration successful" });
+  } catch (error) {
+    console.error("Error inserting rent form data:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.get("/rent-form", async (req, res) => {
+  try {
+    const rentFormData = await db.select("*").from("rent_form");
+    return res.status(200).json(rentFormData);
+  } catch (error) {
+    console.error("Error fetching rent form data:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
 
 app.listen(3001, () => {
   console.log("Server is running on port 3001");
